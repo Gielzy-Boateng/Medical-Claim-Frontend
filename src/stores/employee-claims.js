@@ -4,6 +4,9 @@ export const useClaimStore = defineStore('claimStore', {
   state: () => ({
     errors: {},
     user: null,
+    groupedClaims: { pending: [], approved: [], rejected: [] },
+    groupedClaimsLoading: false,
+    groupedClaimsError: null,
   }),
 
   actions: {
@@ -114,6 +117,25 @@ export const useClaimStore = defineStore('claimStore', {
         return data.data
       }
     },
+    //!! ✅ Fetch all claims from user to HR
+    async fetchAccountClaims() {
+      const res = await fetch('/api/account/all-claims', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        this.errors = data.errors || { general: ['Failed to fetch claims'] }
+        return []
+      } else {
+        this.errors = {}
+        return data.data
+      }
+    },
 
     //!! APPROVE CLAIM
     async approveClaim(claimId) {
@@ -159,6 +181,34 @@ export const useClaimStore = defineStore('claimStore', {
       }
       console.log(data.data)
       return data.data
+    },
+
+    //!! FETCH GROUPED CLAIMS FOR USER
+    async fetchMyClaimsGrouped() {
+      this.groupedClaimsLoading = true
+      this.groupedClaimsError = null
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch('/api/my-claims-grouped', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await res.json()
+        if (res.ok) {
+          this.groupedClaims = data.data
+          return data.data // for immediate use in components
+        } else {
+          this.groupedClaims = { pending: [], approved: [], rejected: [] }
+          this.groupedClaimsError = data.message || 'Failed to fetch claims'
+          return this.groupedClaims
+        }
+      } catch (e) {
+        console.log(e)
+        this.groupedClaims = { pending: [], approved: [], rejected: [] }
+        this.groupedClaimsError = 'Failed to fetch claims'
+        return this.groupedClaims
+      } finally {
+        this.groupedClaimsLoading = false
+      }
     },
   },
 })

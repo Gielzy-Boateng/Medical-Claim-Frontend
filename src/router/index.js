@@ -13,6 +13,8 @@ import EmployeeClaim from '@/views/EmployeeClaim.vue'
 import SuperVisorClaimDetailsView from '@/views/users/SuperVisorClaimDetailsView.vue'
 import ManagerClaimDetailsView from '@/views/users/ManagerClaimDetailsView.vue'
 import HrClaimDetailsView from '@/views/users/HrClaimDetailsView.vue'
+import AccountClaimDetailsView from '@/views/users/AccountClaimDetailsView.vue'
+import EmployeeClaimDetailsView from '@/views/users/EmployeeClaimDetailsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -98,6 +100,24 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
         role: 'hr',
+      },
+    },
+    {
+      path: '/employee/claims/:id',
+      name: 'employeeClaimView',
+      component: EmployeeClaimDetailsView,
+      meta: {
+        requiresAuth: true,
+        role: 'employee',
+      },
+    },
+    {
+      path: '/account/claims/:id',
+      name: 'accountClaimView',
+      component: AccountClaimDetailsView,
+      meta: {
+        requiresAuth: true,
+        role: 'account',
       },
     },
     {
