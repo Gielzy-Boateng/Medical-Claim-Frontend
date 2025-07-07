@@ -3,10 +3,6 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useClaimStore } from '@/stores/employee-claims'
 import { storeToRefs } from 'pinia'
-import ClaimPrintView from '@/components/ClaimPrintView.vue'
-import estateLogo from '@/assets/estate.jpg'
-
-const logoSrc = estateLogo
 
 const route = useRoute()
 const claim = ref(null)
@@ -21,23 +17,6 @@ const claimStore = useClaimStore()
 const router = useRouter()
 const showSuccessDialog = ref(false)
 const successMessage = ref('')
-const printArea = ref(null)
-
-const printClaim = () => {
-  const content = printArea.value?.innerHTML
-  if (!content) return
-
-  const printWindow = window.open('', '', 'height=800,width=1000')
-  printWindow.document.write('<html><head><title>Print Claim</title></head><body>')
-  printWindow.document.write(content)
-  printWindow.document.write('</body></html>')
-  printWindow.document.close()
-  printWindow.focus()
-  setTimeout(() => {
-    printWindow.print()
-    printWindow.close()
-  }, 500)
-}
 
 onMounted(async () => {
   loading.value = true
@@ -94,21 +73,35 @@ async function submitReject() {
     }, 1200)
   }
 }
+
+const goToPrintView = () => {
+  if (claim.value?.id) {
+    router.push(`/account/claims/${claim.value.id}/print`)
+  }
+}
 </script>
 
 <template>
   <div
     class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
   >
+    <button
+      class="absolute left-6 top-6 z-20 flex items-center gap-2 px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
+      @click="router.back()"
+      title="Go Back"
+    >
+      <span aria-hidden="true">←</span>
+      <span>Back</span>
+    </button>
     <!-- Approve/Reject Buttons or Status and Print Button -->
-    <div class="absolute right-8 top-8 z-10 flex flex-col items-end gap-2">
+    <div class="absolute right-8 top-8 z-10 flex flex-row items-center gap-3">
       <button
-        class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-6 py-2 rounded-lg border border-blue-300 shadow transition-colors duration-150 mb-1"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors duration-150 flex items-center gap-2"
         style="min-width: 110px"
         title="Print Claim Details"
-        @click="printClaim"
+        @click="goToPrintView"
       >
-        Print
+        🖨️ Print
       </button>
       <template v-if="claim && claim.status === 'rejected'">
         <span
@@ -125,38 +118,27 @@ async function submitReject() {
         </span>
       </template>
       <template v-else>
-        <div class="flex gap-4">
-          <button
-            class="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-6 py-2 rounded-lg border border-red-300 shadow transition-colors duration-150"
-            style="min-width: 110px"
-            title="Reject Claim"
-            @click="showRejectDialog = true"
-          >
-            Reject
-          </button>
-          <button
-            class="bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-6 py-2 rounded-lg border border-green-300 shadow transition-colors duration-150"
-            style="min-width: 110px"
-            title="Approve Claim"
-            @click="handleApprove"
-          >
-            Approve
-          </button>
-        </div>
+        <button
+          class="bg-red-100 hover:bg-red-200 text-red-700 font-semibold px-6 py-2 rounded-lg border border-red-300 shadow transition-colors duration-150"
+          style="min-width: 110px"
+          title="Reject Claim"
+          @click="showRejectDialog = true"
+        >
+          Reject
+        </button>
+        <button
+          class="bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-6 py-2 rounded-lg border border-green-300 shadow transition-colors duration-150"
+          style="min-width: 110px"
+          title="Approve Claim"
+          @click="handleApprove"
+        >
+          Approve
+        </button>
       </template>
     </div>
     <div v-if="loading" class="text-center py-10 text-lg text-gray-500">Loading...</div>
     <div v-else-if="error" class="text-center py-10 text-red-500">{{ error }}</div>
     <div v-else>
-      <!-- Print Button -->
-      <div class="flex justify-end mb-4">
-        <button
-          class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-6 py-2 rounded-lg border border-blue-300 shadow transition-colors duration-150"
-          @click="window.print()"
-        >
-          Print
-        </button>
-      </div>
       <div class="flex items-center justify-between mb-8">
         <h2 class="text-3xl font-bold text-indigo-700 text-center w-full">
           Claim by {{ claim.user?.name || 'Unknown User' }}
@@ -172,21 +154,19 @@ async function submitReject() {
         </a>
         <span class="text-sm text-gray-400 mt-2">Tap image to view full size</span>
       </div>
-      <table
-        class="w-full border border-gray-400 rounded text-base mb-8 border-separate border-spacing-0"
-      >
+      <table class="w-full border-2 border-gray-400 rounded-lg text-base mb-8 border-collapse">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Beneficiary Name
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Dept</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Dept</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Relation to Employee
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Date</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Medicine</th>
-            <th class="px-3 py-3 border-b border-gray-400 text-center">Price (₵)</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Date</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Items</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Price (₵)</th>
           </tr>
         </thead>
         <tbody>
@@ -201,10 +181,10 @@ async function submitReject() {
                 ? claim.description
                 : parseDescription(claim.description)"
               :key="i"
-              class="border-b border-gray-400"
+              class="border-b-2 border-gray-400"
             >
               <td
-                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
+                class="px-3 py-3 border-2 border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -215,7 +195,7 @@ async function submitReject() {
                 {{ claim.name || claim.beneficiary_name || claim.user?.name || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
+                class="px-3 py-3 border-2 border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -226,7 +206,7 @@ async function submitReject() {
                 {{ claim.department || claim.user?.department || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
+                class="px-3 py-3 border-2 border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -237,7 +217,7 @@ async function submitReject() {
                 {{ claim.relation || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
+                class="px-3 py-3 border-2 border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -247,35 +227,35 @@ async function submitReject() {
               >
                 {{ claim.created_at ? new Date(claim.created_at).toLocaleDateString() : 'N/A' }}
               </td>
-              <td class="px-3 py-3 border-r border-gray-400 text-center">{{ item.medicine }}</td>
-              <td class="px-3 py-3 border-gray-400 text-center">{{ item.price }}</td>
+              <td class="px-3 py-3 border-2 border-gray-400 text-center">{{ item.medicine }}</td>
+              <td class="px-3 py-3 border-2 border-gray-400 text-center">{{ item.price }}</td>
             </tr>
             <tr class="border-t-2 border-green-200">
-              <td colspan="4" class="border-t border-gray-400"></td>
-              <td class="px-3 py-3 font-bold bg-green-50 text-center border-t border-gray-400">
+              <td colspan="4" class="border-t-2 border-gray-400"></td>
+              <td class="px-3 py-3 font-bold bg-green-50 text-center border-t-2 border-gray-400">
                 Total
               </td>
               <td
-                class="px-3 py-3 font-bold text-green-700 bg-green-50 text-center border-t border-gray-400"
+                class="px-3 py-3 font-bold text-green-700 bg-green-50 text-center border-t-2 border-gray-400"
               >
                 ₵{{ claim.amount }}
               </td>
             </tr>
           </template>
-          <tr v-else class="border-b border-gray-400">
-            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
+          <tr v-else class="border-b-2 border-gray-400">
+            <td class="px-3 py-3 border-2 border-gray-400 text-lg text-center">
               {{ claim.name || claim.beneficiary_name || claim.user?.name || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
+            <td class="px-3 py-3 border-2 border-gray-400 text-lg text-center">
               {{ claim.department || claim.user?.department || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
+            <td class="px-3 py-3 border-2 border-gray-400 text-lg text-center">
               {{ claim.relation || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
+            <td class="px-3 py-3 border-2 border-gray-400 text-lg text-center">
               {{ claim.created_at ? new Date(claim.created_at).toLocaleDateString() : 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-400 text-gray-400 text-center" colspan="2">
+            <td class="px-3 py-3 border-2 border-gray-400 text-gray-400 text-center" colspan="2">
               No expenditures
             </td>
           </tr>
@@ -336,10 +316,6 @@ async function submitReject() {
         </div>
       </transition>
     </div>
-  </div>
-  <!-- Hidden printable version -->
-  <div v-if="claim" ref="printArea" style="display: none">
-    <ClaimPrintView :claim="claim" :logoSrc="logoSrc" />
   </div>
 </template>
 

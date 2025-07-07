@@ -7,99 +7,69 @@
         <h1 v-if="authStore.user" class="text-3xl font-bold mb-2 text-indigo-700">
           Welcome, {{ authStore.user.name }}
         </h1>
-        <h2 class="text-xl md:text-2xl font-bold mb-8 text-gray-700">Select Your Role</h2>
-        <div class="flex flex-wrap gap-6 justify-center mb-6">
-          <button
-            v-for="role in roles"
-            :key="role.value"
-            @click="state.selected = role.value"
-            :class="[
-              'px-8 py-4 rounded-xl text-lg font-semibold shadow-md border-2 transition-all duration-200',
-              state.selected === role.value
-                ? 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-indigo-500 scale-105 drop-shadow-lg'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-indigo-50',
-            ]"
-          >
-            {{ role.label }}
-          </button>
+        <h2 class="text-xl md:text-2xl font-bold mb-8 text-gray-700">Role Assignment</h2>
+
+        <!-- Role Information -->
+        <div class="w-full mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <h3 class="text-lg font-semibold text-blue-800 mb-2">Role Assignment Policy</h3>
+          <p class="text-blue-700 text-sm leading-relaxed">
+            New users are automatically assigned the <strong>Employee</strong> role. Higher-level
+            roles (Supervisor, Manager, HR, Account) can only be assigned by HR administrators.
+          </p>
         </div>
-        <div v-if="state.selected" class="mt-4 text-lg text-gray-700">
-          <span class="font-semibold">Selected:</span>
-          <span class="font-bold text-indigo-600">{{
-            roles.find((r) => r.value === state.selected).label
-          }}</span>
+
+        <!-- Current Role Display -->
+        <div class="w-full mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
+          <h3 class="text-lg font-semibold text-green-800 mb-2">Your Current Role</h3>
+          <p class="text-green-700">
+            <span class="font-bold">{{ getRoleLabel(authStore.user?.role || 'employee') }}</span>
+          </p>
         </div>
+
+        <!-- Contact HR Section -->
+        <div class="w-full mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+          <h3 class="text-lg font-semibold text-amber-800 mb-2">Need Role Change?</h3>
+          <p class="text-amber-700 text-sm leading-relaxed">
+            If you need a different role assigned, please contact your HR department. Role changes
+            require administrative approval.
+          </p>
+        </div>
+
         <button
-          class="mt-10 w-full md:w-2/3 py-3 text-xl bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white rounded-xl font-bold shadow transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-          :disabled="!state.selected || state.loading"
-          v-on:click="setRoleAndNavigate"
+          class="w-full md:w-2/3 py-3 text-xl bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white rounded-xl font-bold shadow transition duration-200"
+          @click="proceedToDashboard"
         >
-          <span v-if="!state.loading">Submit</span>
-          <span v-else>Submitting...</span>
+          Continue to Dashboard
         </button>
-        <p v-if="state.error" class="mt-4 text-red-500 text-center">
-          {{ state.error }}
-        </p>
       </div>
     </div>
   </WidthConstraint>
 </template>
 
 <script setup>
-import { onMounted, reactive } from 'vue'
+import { onMounted } from 'vue'
 import WidthConstraint from '@/components/WidthConstraint.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 onMounted(() => authStore.getAuthUser())
 
-const roles = [
-  { label: 'Employee', value: 'employee' },
-  { label: 'Supervisor', value: 'supervisor' },
-  { label: 'General Manager', value: 'manager' },
-  { label: 'HR', value: 'hr' },
-  { label: 'Account', value: 'account' },
-]
-
-const state = reactive({
-  selected: null,
-})
-
-const router = useRouter()
-
-async function setRoleAndNavigate() {
-  if (!state.selected) return
-
-  state.loading = true
-  state.error = null
-
-  try {
-    const res = await fetch('/api/set-role', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json', // <-- add this line
-      },
-      body: JSON.stringify({ role: state.selected }),
-    })
-
-    const data = await res.json()
-
-    if (data.user) {
-      authStore.user = data.user // update user in store
-
-      // Navigate based on role
-      router.push(`/${data.user.role}/dashboard`)
-    } else {
-      state.error = 'Something went wrong. Please try again.'
-    }
-  } catch (err) {
-    console.error(err)
-    state.error = 'Network error. Please try again.'
-  } finally {
-    state.loading = false
+const getRoleLabel = (role) => {
+  const roleLabels = {
+    employee: 'Employee',
+    supervisor: 'Supervisor',
+    manager: 'General Manager',
+    hr: 'HR',
+    account: 'Account',
   }
+  return roleLabels[role] || 'Employee'
+}
+
+const proceedToDashboard = () => {
+  const role = authStore.user?.role || 'employee'
+  router.push(`/${role}/dashboard`)
 }
 </script>

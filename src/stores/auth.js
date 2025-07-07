@@ -8,7 +8,6 @@ export const useAuthStore = defineStore('authStore', {
 
   actions: {
     //?? getAuthenticated User
-
     async getAuthUser() {
       if (localStorage.getItem('token')) {
         const res = await fetch('/api/user', {
@@ -25,7 +24,7 @@ export const useAuthStore = defineStore('authStore', {
       }
     },
 
-    async authenticate(apiRoute, formData, role, router) {
+    async authenticate(apiRoute, formData, router) {
       const res = await fetch(`/api/${apiRoute}`, {
         method: 'post',
         headers: {
@@ -53,11 +52,14 @@ export const useAuthStore = defineStore('authStore', {
       this.errors = {}
       this.user = data.user
 
-      // ✅ Redirect based on role
+      // ✅ Redirect based on role - users are now automatically employees
       if (this.user.role) {
+        console.log('Redirecting to:', `/${this.user.role}/dashboard`)
         router.push(`/${this.user.role}/dashboard`)
       } else {
-        router.push({ name: 'setRole' }) // usually 'setRole'
+        // If no role is set, redirect to role page (which now just shows info)
+        console.log('No role set, redirecting to setRole')
+        router.push({ name: 'setRole' })
       }
 
       console.log(data)
@@ -83,6 +85,28 @@ export const useAuthStore = defineStore('authStore', {
         router.push({ name: 'home' })
       } else {
         this.errors = data.errors
+      }
+    },
+
+    //!! HR Role Management Functions
+    async assignRoleToUser(userId, role) {
+      const res = await fetch('/api/admin/assign-role', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId, role: role }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        this.errors = data.errors || { general: [data.message || 'Failed to assign role'] }
+        return null
+      } else {
+        this.errors = {}
+        return data.user
       }
     },
   },

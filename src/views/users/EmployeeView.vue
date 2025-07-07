@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useClaimStore } from '@/stores/employee-claims'
 import ClaimCardList from '@/components/ClaimCardList.vue'
 import WidthConstraint from '@/components/WidthConstraint.vue'
 
+const route = useRoute()
+const router = useRouter()
 const claimStore = useClaimStore()
 const claims = ref({ pending: [], approved: [], rejected: [] })
 const loading = ref(true)
@@ -15,7 +18,30 @@ const tabs = [
   { label: 'Approved', value: 'approved' },
   { label: 'Rejected', value: 'rejected' },
 ]
-const activeTab = ref('all')
+
+// Initialize tab from URL query parameter or default
+const activeTab = ref(route.query.tab || 'all')
+
+// Watch for tab changes and update URL
+watch(activeTab, (newTab) => {
+  updateUrl({ tab: newTab })
+})
+
+function updateUrl(params) {
+  const newQuery = { ...route.query, ...params }
+  router.replace({ query: newQuery })
+}
+
+// Computed properties for claim counts
+const claimCounts = computed(() => ({
+  all:
+    (claims.value.pending || []).length +
+    (claims.value.approved || []).length +
+    (claims.value.rejected || []).length,
+  pending: (claims.value.pending || []).length,
+  approved: (claims.value.approved || []).length,
+  rejected: (claims.value.rejected || []).length,
+}))
 
 // Fetch grouped claims on mount
 onMounted(async () => {
@@ -54,6 +80,9 @@ onMounted(async () => {
           ]"
         >
           {{ tab.label }}
+          <span class="ml-2 px-2 py-1 text-xs bg-white bg-opacity-20 rounded-full">
+            {{ claimCounts[tab.value] }}
+          </span>
         </button>
       </div>
       <router-link

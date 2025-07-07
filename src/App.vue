@@ -12,7 +12,7 @@ const router = useRouter()
 
 <template>
   <nav
-    class="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-cyan-500 to-indigo-500 shadow-xl py-1.5 backdrop-blur-md bg-opacity-90"
+    class="app-header fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-cyan-500 to-indigo-500 shadow-xl py-1.5 backdrop-blur-md bg-opacity-90"
   >
     <WidthConstraint>
       <div class="flex items-center justify-between">
@@ -92,7 +92,15 @@ const router = useRouter()
       </div>
     </WidthConstraint>
   </nav>
-  <div class="pt-24">
+  <div class="pt-24 app-content">
     <RouterView />
   </div>
 </template>
+
+<style>
+@media print {
+  .app-header {
+    display: none !important;
+  }
+}
+</style>

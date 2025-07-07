@@ -100,12 +100,19 @@ async function handleSubmit() {
             </div>
             <div class="flex-1">
               <label class="block mb-2 text-gray-700 font-semibold">Department</label>
-              <input
+              <select
                 v-model="formData.department"
-                type="text"
-                placeholder="Enter department"
                 class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition shadow-sm bg-white"
-              />
+              >
+                <option value="">Select department</option>
+                <option value="requisition">Requisition</option>
+                <option value="software">Software</option>
+                <option value="media">Media</option>
+                <option value="account">Account</option>
+                <option value="marketing">Marketing</option>
+                <option value="Human Resource">Human Resource</option>
+                <option value="Manager">Manager</option>
+              </select>
               <p v-if="errors.department" class="text-red-400">
                 {{ errors.department[0] }}
               </p>

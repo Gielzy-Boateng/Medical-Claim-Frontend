@@ -15,7 +15,7 @@ import ManagerClaimDetailsView from '@/views/users/ManagerClaimDetailsView.vue'
 import HrClaimDetailsView from '@/views/users/HrClaimDetailsView.vue'
 import AccountClaimDetailsView from '@/views/users/AccountClaimDetailsView.vue'
 import EmployeeClaimDetailsView from '@/views/users/EmployeeClaimDetailsView.vue'
-import ClaimPrintView from '@/components/ClaimPrintView.vue'
+import PrintClaimView from '@/views/PrintClaimView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -123,7 +123,7 @@ const router = createRouter({
     },
     {
       path: '/manager/dashboard',
-      name: 'manger',
+      name: 'manager',
       component: ManagerView,
       meta: {
         requiresAuth: true,
@@ -151,7 +151,7 @@ const router = createRouter({
     {
       path: '/account/claims/:id/print',
       name: 'printClaim',
-      component: ClaimPrintView,
+      component: PrintClaimView,
       meta: {
         requiresAuth: true,
         role: 'account',

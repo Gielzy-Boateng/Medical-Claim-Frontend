@@ -27,7 +27,7 @@ onMounted(() => {
       <h1 class="text-3xl font-bold mb-8 text-red-500">Login</h1>
       <form
         class="flex flex-col gap-y-6 items-center justify-center w-full max-w-xl bg-white p-8 rounded-2xl shadow-md border border-gray-100"
-        @submit.prevent="() => authenticate('login', formData, 'setRole', router)"
+        @submit.prevent="() => authenticate('login', formData, router)"
       >
         <div class="w-full flex flex-col items-center">
           <input

@@ -79,6 +79,14 @@ async function submitReject() {
   <div
     class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
   >
+    <button
+      class="absolute left-6 top-6 z-20 flex items-center gap-2 px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
+      @click="router.back()"
+      title="Go Back"
+    >
+      <span aria-hidden="true">←</span>
+      <span>Back</span>
+    </button>
     <!-- Approve/Reject Buttons or Status -->
     <div class="absolute right-8 top-8 z-10">
       <template v-if="claim && claim.status === 'rejected'">

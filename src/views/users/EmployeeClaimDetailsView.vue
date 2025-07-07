@@ -2,9 +2,10 @@
 import WidthConstraint from '@/components/WidthConstraint.vue'
 import ClaimProgressTimeline from '@/components/ClaimProgressTimeline.vue'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const claim = ref(null)
 const loading = ref(true)
 const error = ref(null)
@@ -41,7 +42,14 @@ function parseDescription(desc) {
   <WidthConstraint
     class="mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
   >
-    <!-- ...existing code... -->
+    <button
+      class="absolute left-6 top-6 z-20 flex items-center gap-2 px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
+      @click="router.back()"
+      title="Go Back"
+    >
+      <span aria-hidden="true">←</span>
+      <span>Back</span>
+    </button>
     <div v-if="loading" class="text-center py-10 text-lg text-gray-500">Loading...</div>
     <div v-else-if="error" class="text-center py-10 text-red-500">{{ error }}</div>
     <div v-else>
@@ -127,9 +135,10 @@ function parseDescription(desc) {
                 ? claim.description
                 : parseDescription(claim.description)"
               :key="i"
+              class="border-b border-gray-400"
             >
               <td
-                class="px-3 py-3 border-r border-gray-300 text-lg text-center"
+                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -140,7 +149,7 @@ function parseDescription(desc) {
                 {{ claim.name || claim.beneficiary_name || claim.user?.name || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-300 text-lg text-center"
+                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -151,7 +160,7 @@ function parseDescription(desc) {
                 {{ claim.department || claim.user?.department || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-300 text-lg text-center"
+                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -162,7 +171,7 @@ function parseDescription(desc) {
                 {{ claim.relation || 'N/A' }}
               </td>
               <td
-                class="px-3 py-3 border-r border-gray-300 text-lg text-center"
+                class="px-3 py-3 border-r border-gray-400 text-lg text-center"
                 v-if="i === 0"
                 :rowspan="
                   Array.isArray(claim.description)
@@ -172,39 +181,35 @@ function parseDescription(desc) {
               >
                 {{ claim.created_at ? new Date(claim.created_at).toLocaleDateString() : 'N/A' }}
               </td>
-              <td class="px-3 py-3 border-r border-gray-300 text-center border-b">
-                {{ item.medicine }}
-              </td>
-              <td class="px-3 py-3 border-gray-300 text-center border-b">
-                {{ item.price }}
-              </td>
+              <td class="px-3 py-3 border-r border-gray-400 text-center">{{ item.medicine }}</td>
+              <td class="px-3 py-3 border-gray-400 text-center">{{ item.price }}</td>
             </tr>
             <tr class="border-t-2 border-green-200">
-              <td colspan="4" class="border-t border-gray-300"></td>
-              <td class="px-3 py-3 font-bold bg-green-50 text-center border-t border-gray-300">
+              <td colspan="4" class="border-t border-gray-400"></td>
+              <td class="px-3 py-3 font-bold bg-green-50 text-center border-t border-gray-400">
                 Total
               </td>
               <td
-                class="px-3 py-3 font-bold text-green-700 bg-green-50 text-center border-t border-gray-300"
+                class="px-3 py-3 font-bold text-green-700 bg-green-50 text-center border-t border-gray-400"
               >
                 ₵{{ claim.amount }}
               </td>
             </tr>
           </template>
-          <tr v-else class="border-b border-gray-300">
-            <td class="px-3 py-3 border-r border-gray-300 text-lg text-center">
+          <tr v-else class="border-b border-gray-400">
+            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
               {{ claim.name || claim.beneficiary_name || claim.user?.name || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-300 text-lg text-center">
+            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
               {{ claim.department || claim.user?.department || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-300 text-lg text-center">
+            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
               {{ claim.relation || 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-300 text-lg text-center">
+            <td class="px-3 py-3 border-r border-gray-400 text-lg text-center">
               {{ claim.created_at ? new Date(claim.created_at).toLocaleDateString() : 'N/A' }}
             </td>
-            <td class="px-3 py-3 border-r border-gray-300 text-gray-400 text-center" colspan="2">
+            <td class="px-3 py-3 border-r border-gray-400 text-gray-400 text-center" colspan="2">
               No expenditures
             </td>
           </tr>
