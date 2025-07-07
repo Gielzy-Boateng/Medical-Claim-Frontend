@@ -59,6 +59,10 @@ const claimCounts = computed(() => ({
   rejected: claims.value.filter((claim) => claim.status === 'rejected').length,
 }))
 
+const totalAmount = computed(() => {
+  return claims.value.reduce((sum, claim) => sum + Number(claim.amount || 0), 0)
+})
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -78,6 +82,10 @@ onMounted(async () => {
     <WidthConstraint>
       <div class="py-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Account Dashboard</h1>
+
+        <div class="mb-4 text-indigo-700 font-bold text-lg">
+          Total Claimed: ₵{{ totalAmount.toLocaleString() }}
+        </div>
 
         <!-- Main Tabs -->
         <div class="mb-6">

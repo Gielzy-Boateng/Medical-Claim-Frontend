@@ -1,11 +1,14 @@
 <script setup>
 import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
   claims: Array,
   status: String,
   routeName: String,
 })
+
+const authStore = useAuthStore()
 
 // Parse `description` to an array
 function getExpenditureArray(desc) {
@@ -19,6 +22,15 @@ function getExpenditureArray(desc) {
     }
   }
   return []
+}
+
+// Check if current user has acted on the claim
+function getUserAction(claim) {
+  if (!claim.flow_history || !authStore.user) return null
+  let history =
+    typeof claim.flow_history === 'string' ? JSON.parse(claim.flow_history) : claim.flow_history
+  const entry = history.find((h) => h.by === authStore.user.id)
+  return entry ? entry.action : null
 }
 
 //!! Filter claims by status
@@ -113,6 +125,35 @@ const filteredClaims = computed(() => {
                 ({{ claim.department }})
               </span>
             </span>
+          </div>
+
+          <span
+            v-if="claim.user && claim.user.claim_total !== undefined"
+            class="ml-3 text-indigo-700 font-semibold"
+          >
+            Remaining: ₵{{ Number(claim.user.claim_total).toLocaleString() }}
+          </span>
+
+          <!-- Status or Action Buttons -->
+          <div class="mt-4">
+            <template v-if="getUserAction(claim)">
+              <span
+                v-if="getUserAction(claim) === 'approved'"
+                class="px-4 py-1 rounded-full bg-green-100 text-green-700 font-semibold border border-green-300"
+                >Approved</span
+              >
+              <span
+                v-else-if="getUserAction(claim) === 'rejected'"
+                class="px-4 py-1 rounded-full bg-red-100 text-red-700 font-semibold border border-red-300"
+                >Rejected</span
+              >
+              <span
+                v-else
+                class="px-4 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold border border-yellow-300"
+                >Pending</span
+              >
+            </template>
+            <!-- No action buttons if user has already acted -->
           </div>
         </div>
       </RouterLink>

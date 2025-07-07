@@ -1,10 +1,9 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import WidthConstraint from '@/components/WidthConstraint.vue'
 import { useClaimStore } from '@/stores/employee-claims'
 import { storeToRefs } from 'pinia'
-import { onMounted } from 'vue'
 
 const formData = reactive({
   name: '',
@@ -23,8 +22,26 @@ function updateTotal() {
   }, 0)
 }
 
-onMounted(() => {
+const claimTotal = ref(null)
+const loadingUser = ref(true)
+const errorUser = ref(null)
+
+onMounted(async () => {
   errors.value = {}
+  // Fetch user claim_total
+  try {
+    const token = localStorage.getItem('token')
+    const res = await fetch('/api/user', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) throw new Error('Failed to fetch user info')
+    const data = await res.json()
+    claimTotal.value = data.claim_total
+  } catch {
+    errorUser.value = 'Could not load your claim limit.'
+  } finally {
+    loadingUser.value = false
+  }
 })
 
 const { errors } = storeToRefs(useClaimStore())
@@ -84,7 +101,16 @@ async function handleSubmit() {
     >
       <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
         <h1 class="text-3xl font-bold mb-8 text-indigo-600 text-center">Create Medical Claim</h1>
-        <form @submit.prevent="handleSubmit" class="flex flex-col gap-y-8">
+        <!-- Claim total info -->
+        <div v-if="loadingUser" class="mb-4 text-gray-500">Loading your claim limit...</div>
+        <div v-else-if="errorUser" class="mb-4 text-red-500">{{ errorUser }}</div>
+        <div v-else-if="claimTotal <= 0" class="mb-4 text-red-600 font-bold">
+          You have exhausted your claim limit. You cannot submit new claims.
+        </div>
+        <div v-else class="mb-4 text-green-700 font-semibold">
+          You have ₵{{ Number(claimTotal).toLocaleString() }} left to claim.
+        </div>
+        <form v-if="claimTotal > 0" @submit.prevent="handleSubmit" class="flex flex-col gap-y-8">
           <div class="flex flex-col md:flex-row gap-6">
             <div class="flex-1">
               <label class="block mb-2 text-gray-700 font-semibold">Name of Beneficiary</label>
@@ -185,6 +211,12 @@ async function handleSubmit() {
               class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition shadow-sm bg-white"
               readonly
             />
+            <p
+              v-if="claimTotal !== null && formData.amount > claimTotal"
+              class="text-red-600 font-semibold mt-2"
+            >
+              Warning: Your claim exceeds your available limit!
+            </p>
             <p v-if="errors.amount" class="text-red-400">
               {{ errors.amount[0] }}
             </p>

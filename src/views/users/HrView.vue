@@ -57,6 +57,10 @@ const currentClaims = computed(() => {
   return groupedClaims.value[activeClaimSubTab.value] || []
 })
 
+const totalAmount = computed(() => {
+  return currentClaims.value.reduce((sum, claim) => sum + Number(claim.amount || 0), 0)
+})
+
 onMounted(async () => {
   loading.value = true
   try {
@@ -150,6 +154,9 @@ onMounted(async () => {
 
           <!-- Claims List -->
           <div v-else>
+            <div v-if="activeTab === 'claims'" class="mb-4 text-indigo-700 font-bold text-lg">
+              Total Claimed: ₵{{ totalAmount.toLocaleString() }}
+            </div>
             <ClaimCardList
               :claims="currentClaims"
               :status="activeClaimSubTab"

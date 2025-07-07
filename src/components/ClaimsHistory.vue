@@ -2,6 +2,9 @@
   <div class="w-full max-w-6xl mx-auto p-6">
     <div class="bg-white rounded-xl shadow-lg p-6">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Claims History</h2>
+      <div class="mb-4 text-indigo-700 font-bold text-lg">
+        Total Claimed: ₵{{ totalAmount.toLocaleString() }}
+      </div>
 
       <!-- Search and Filter -->
       <div class="mb-6 flex flex-col sm:flex-row gap-4">
@@ -211,6 +214,10 @@ const filteredClaims = computed(() => {
   }
 
   return filtered
+})
+
+const totalAmount = computed(() => {
+  return filteredClaims.value.reduce((sum, claim) => sum + Number(claim.amount || 0), 0)
 })
 
 const fetchHandledClaims = async () => {

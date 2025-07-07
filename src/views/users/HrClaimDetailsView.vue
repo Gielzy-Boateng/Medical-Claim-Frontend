@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useClaimStore } from '@/stores/employee-claims'
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const claim = ref(null)
@@ -17,6 +18,8 @@ const claimStore = useClaimStore()
 const router = useRouter()
 const showSuccessDialog = ref(false)
 const successMessage = ref('')
+
+const authStore = useAuthStore()
 
 onMounted(async () => {
   loading.value = true
@@ -46,7 +49,10 @@ function parseDescription(desc) {
 
 async function handleApprove() {
   if (!claim.value?.id) return
-  await claimStore.approveClaim(claim.value.id)
+  const data = await claimStore.approveClaim(claim.value.id)
+  if (data && data.data) {
+    claim.value = data.data // update claim with fresh data from backend
+  }
   await new Promise((r) => setTimeout(r, 50))
   if (!claimStore.errors || !Object.keys(claimStore.errors).length) {
     successMessage.value = 'Claim approved successfully.'
@@ -73,6 +79,15 @@ async function submitReject() {
     }, 1200)
   }
 }
+
+function getMyAction() {
+  if (!claim.value || !claim.value.flow_history || !authStore.user) return null
+  let history =
+    typeof claim.value.flow_history === 'string'
+      ? JSON.parse(claim.value.flow_history)
+      : claim.value.flow_history
+  return history.find((h) => h.by === authStore.user.id)
+}
 </script>
 
 <template>
@@ -88,7 +103,7 @@ async function submitReject() {
       <span>Back</span>
     </button>
     <!-- Approve/Reject Buttons or Status -->
-    <div class="absolute right-8 top-8 z-10">
+    <div class="absolute right-8 top-8 z-10" v-if="!getMyAction()">
       <template v-if="claim && claim.status === 'rejected'">
         <span
           class="px-6 py-2 rounded-full border border-red-300 bg-red-100 text-red-700 font-semibold shadow text-lg select-none block"
@@ -142,21 +157,19 @@ async function submitReject() {
         </a>
         <span class="text-sm text-gray-400 mt-2">Tap image to view full size</span>
       </div>
-      <table
-        class="w-full border border-gray-400 rounded text-base mb-8 border-separate border-spacing-0"
-      >
+      <table class="w-full border-2 border-gray-400 rounded-lg text-base mb-8 border-collapse">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Beneficiary Name
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Dept</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Dept</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Relation to Employee
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Date</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Medicine</th>
-            <th class="px-3 py-3 border-b border-gray-400 text-center">Price (₵)</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Date</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Medicine</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Price (₵)</th>
           </tr>
         </thead>
         <tbody>
@@ -249,6 +262,21 @@ async function submitReject() {
               No expenditures
             </td>
           </tr>
+          <tr class="border-t-2 border-indigo-300 bg-indigo-50">
+            <td
+              colspan="5"
+              class="px-3 py-3 font-bold text-indigo-700 text-left border-t-2 border-gray-400"
+            >
+              Remaining Claim Amount
+            </td>
+            <td class="px-3 py-3 font-bold text-indigo-700 text-center border-t-2 border-gray-400">
+              ₵{{
+                claim.user && claim.user.claim_total !== undefined
+                  ? Number(claim.user.claim_total).toLocaleString()
+                  : 'N/A'
+              }}
+            </td>
+          </tr>
         </tbody>
       </table>
       <!-- Success Dialog -->
@@ -305,6 +333,33 @@ async function submitReject() {
           </div>
         </div>
       </transition>
+      <div v-if="getMyAction()" class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <h4 class="font-semibold text-blue-800 mb-2">My Action on This Claim</h4>
+        <span
+          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+          :class="
+            getMyAction().action === 'approved'
+              ? 'bg-green-100 text-green-800 border border-green-300'
+              : getMyAction().action === 'rejected'
+                ? 'bg-red-100 text-red-800 border border-red-300'
+                : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+          "
+        >
+          {{
+            getMyAction().action === 'approved'
+              ? '✅ Approved'
+              : getMyAction().action === 'rejected'
+                ? '❌ Rejected'
+                : '⏳ Pending'
+          }}
+        </span>
+        <span class="text-sm text-gray-600"
+          >on {{ new Date(getMyAction().at).toLocaleString() }}</span
+        >
+        <span v-if="getMyAction().reason" class="text-sm text-gray-600"
+          >- {{ getMyAction().reason }}</span
+        >
+      </div>
     </div>
   </div>
 </template>

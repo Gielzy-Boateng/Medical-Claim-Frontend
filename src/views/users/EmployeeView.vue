@@ -43,6 +43,12 @@ const claimCounts = computed(() => ({
   rejected: (claims.value.rejected || []).length,
 }))
 
+const totalAmount = computed(() => {
+  return (claims.value.pending || [])
+    .concat(claims.value.approved || [], claims.value.rejected || [])
+    .reduce((sum, claim) => sum + Number(claim.amount || 0), 0)
+})
+
 // Fetch grouped claims on mount
 onMounted(async () => {
   loading.value = true
@@ -59,6 +65,9 @@ onMounted(async () => {
 
 <template>
   <WidthConstraint class="w-full mt-10 px-2 sm:px-4 md:px-8">
+    <div class="mb-4 text-indigo-700 font-bold text-lg">
+      Total Claimed: ₵{{ totalAmount.toLocaleString() }}
+    </div>
     <!-- Tab Switcher and Create Button -->
     <div class="flex flex-wrap gap-2 mb-8 items-center justify-between w-full">
       <div class="flex flex-wrap gap-2">

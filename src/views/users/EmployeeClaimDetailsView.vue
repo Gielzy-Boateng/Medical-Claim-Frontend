@@ -106,21 +106,19 @@ function parseDescription(desc) {
         </a>
         <span class="text-sm text-gray-400 mt-2">Tap image to view full size</span>
       </div>
-      <table
-        class="w-full border border-gray-400 rounded text-base mb-8 border-separate border-spacing-0"
-      >
+      <table class="w-full border-2 border-gray-400 rounded-lg text-base mb-8 border-collapse">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Beneficiary Name
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Dept</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Dept</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">
               Relation to Employee
             </th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Date</th>
-            <th class="px-3 py-3 border-r border-b border-gray-400 text-center">Items</th>
-            <th class="px-3 py-3 border-b border-gray-400 text-center">Price (₵)</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Date</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Items</th>
+            <th class="px-3 py-3 border-2 border-gray-400 text-center font-semibold">Price (₵)</th>
           </tr>
         </thead>
         <tbody>
@@ -211,6 +209,21 @@ function parseDescription(desc) {
             </td>
             <td class="px-3 py-3 border-r border-gray-400 text-gray-400 text-center" colspan="2">
               No expenditures
+            </td>
+          </tr>
+          <tr class="border-t-2 border-indigo-300 bg-indigo-50">
+            <td
+              colspan="5"
+              class="px-3 py-3 font-bold text-indigo-700 text-left border-t-2 border-gray-400"
+            >
+              Remaining Claim Amount
+            </td>
+            <td class="px-3 py-3 font-bold text-indigo-700 text-center border-t-2 border-gray-400">
+              ₵{{
+                claim.user && claim.user.claim_total !== undefined
+                  ? Number(claim.user.claim_total).toLocaleString()
+                  : 'N/A'
+              }}
             </td>
           </tr>
         </tbody>
