@@ -117,7 +117,7 @@ export const useClaimStore = defineStore('claimStore', {
         return data.data
       }
     },
-    //!! ✅ Fetch all claims from user to HR
+    //!! ✅ Fetch all claims from user to Account
     async fetchAccountClaims() {
       const res = await fetch('/api/account/all-claims', {
         method: 'GET',

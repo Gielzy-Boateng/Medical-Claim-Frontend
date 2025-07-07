@@ -12,6 +12,7 @@ const error = ref(null)
 const tabs = [
   { label: 'All', value: 'all' },
   { label: 'Pending', value: 'pending' },
+  { label: 'Approved', value: 'approved' },
   { label: 'Rejected', value: 'rejected' },
 ]
 const activeTab = ref('all')
@@ -19,7 +20,7 @@ const activeTab = ref('all')
 onMounted(async () => {
   loading.value = true
   try {
-    claims.value = await claimStore.fetchHrClaims()
+    claims.value = await claimStore.fetchAccountClaims()
     console.log('claims:', claims.value)
   } catch (e) {
     console.log(e)
@@ -44,9 +45,11 @@ onMounted(async () => {
               activeTab === tab.value
                 ? tab.value === 'pending'
                   ? 'bg-indigo-600 text-white border-indigo-700 shadow'
-                  : tab.value === 'rejected'
-                    ? 'bg-red-600 text-white border-red-700 shadow'
-                    : 'bg-gray-700 text-white'
+                  : tab.value === 'approved'
+                    ? 'bg-green-600 text-white border-green-700 shadow'
+                    : tab.value === 'rejected'
+                      ? 'bg-red-600 text-white border-red-700 shadow'
+                      : 'bg-gray-700 text-white'
                 : 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50',
             ]"
           >

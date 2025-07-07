@@ -21,7 +21,7 @@ function getExpenditureArray(desc) {
   return []
 }
 
-// Filter claims by status
+//!! Filter claims by status
 const filteredClaims = computed(() => {
   if (props.status === 'all') return props.claims
   return props.claims.filter(

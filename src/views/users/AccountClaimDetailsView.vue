@@ -3,6 +3,10 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useClaimStore } from '@/stores/employee-claims'
 import { storeToRefs } from 'pinia'
+import ClaimPrintView from '@/components/ClaimPrintView.vue'
+import estateLogo from '@/assets/estate.jpg'
+
+const logoSrc = estateLogo
 
 const route = useRoute()
 const claim = ref(null)
@@ -17,6 +21,23 @@ const claimStore = useClaimStore()
 const router = useRouter()
 const showSuccessDialog = ref(false)
 const successMessage = ref('')
+const printArea = ref(null)
+
+const printClaim = () => {
+  const content = printArea.value?.innerHTML
+  if (!content) return
+
+  const printWindow = window.open('', '', 'height=800,width=1000')
+  printWindow.document.write('<html><head><title>Print Claim</title></head><body>')
+  printWindow.document.write(content)
+  printWindow.document.write('</body></html>')
+  printWindow.document.close()
+  printWindow.focus()
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 500)
+}
 
 onMounted(async () => {
   loading.value = true
@@ -79,8 +100,16 @@ async function submitReject() {
   <div
     class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
   >
-    <!-- Approve/Reject Buttons or Status -->
-    <div class="absolute right-8 top-8 z-10">
+    <!-- Approve/Reject Buttons or Status and Print Button -->
+    <div class="absolute right-8 top-8 z-10 flex flex-col items-end gap-2">
+      <button
+        class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-6 py-2 rounded-lg border border-blue-300 shadow transition-colors duration-150 mb-1"
+        style="min-width: 110px"
+        title="Print Claim Details"
+        @click="printClaim"
+      >
+        Print
+      </button>
       <template v-if="claim && claim.status === 'rejected'">
         <span
           class="px-6 py-2 rounded-full border border-red-300 bg-red-100 text-red-700 font-semibold shadow text-lg select-none block"
@@ -119,6 +148,15 @@ async function submitReject() {
     <div v-if="loading" class="text-center py-10 text-lg text-gray-500">Loading...</div>
     <div v-else-if="error" class="text-center py-10 text-red-500">{{ error }}</div>
     <div v-else>
+      <!-- Print Button -->
+      <div class="flex justify-end mb-4">
+        <button
+          class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-6 py-2 rounded-lg border border-blue-300 shadow transition-colors duration-150"
+          @click="window.print()"
+        >
+          Print
+        </button>
+      </div>
       <div class="flex items-center justify-between mb-8">
         <h2 class="text-3xl font-bold text-indigo-700 text-center w-full">
           Claim by {{ claim.user?.name || 'Unknown User' }}
@@ -298,6 +336,10 @@ async function submitReject() {
         </div>
       </transition>
     </div>
+  </div>
+  <!-- Hidden printable version -->
+  <div v-if="claim" ref="printArea" style="display: none">
+    <ClaimPrintView :claim="claim" :logoSrc="logoSrc" />
   </div>
 </template>
 

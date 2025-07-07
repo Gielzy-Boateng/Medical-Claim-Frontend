@@ -9,12 +9,13 @@ import LoginView from '@/views/auth/LoginView.vue'
 import SupervisorView from '@/views/users/SupervisorView.vue'
 import ManagerView from '@/views/users/ManagerView.vue'
 import { useAuthStore } from '@/stores/auth'
-import EmployeeClaim from '@/views/EmployeeClaim.vue'
+import EmployeeClaim from '@/views/CreateClaim.vue'
 import SuperVisorClaimDetailsView from '@/views/users/SuperVisorClaimDetailsView.vue'
 import ManagerClaimDetailsView from '@/views/users/ManagerClaimDetailsView.vue'
 import HrClaimDetailsView from '@/views/users/HrClaimDetailsView.vue'
 import AccountClaimDetailsView from '@/views/users/AccountClaimDetailsView.vue'
 import EmployeeClaimDetailsView from '@/views/users/EmployeeClaimDetailsView.vue'
+import ClaimPrintView from '@/components/ClaimPrintView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -145,6 +146,15 @@ const router = createRouter({
       meta: {
         requiresAuth: true,
         role: 'employee',
+      },
+    },
+    {
+      path: '/account/claims/:id/print',
+      name: 'printClaim',
+      component: ClaimPrintView,
+      meta: {
+        requiresAuth: true,
+        role: 'account',
       },
     },
     // {
