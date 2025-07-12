@@ -21,8 +21,9 @@ export const useClaimStore = defineStore('claimStore', {
       form.append('description', JSON.stringify(plainData.description))
       form.append('amount', plainData.amount)
       form.append('document', formData.document) // file is safe directly
+      const baseURL = import.meta.env.VITE_API_URL
 
-      const res = await fetch('/api/post', {
+      const res = await fetch(`${baseURL}/api/post`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -43,7 +44,9 @@ export const useClaimStore = defineStore('claimStore', {
 
     //!! ✅ Fetch all claims for the authenticated user
     async fetchMyClaims() {
-      const res = await fetch('/api/my-posts', {
+      const baseURL = import.meta.env.VITE_API_URL
+
+      const res = await fetch(`${baseURL}/api/my-posts`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -62,7 +65,9 @@ export const useClaimStore = defineStore('claimStore', {
     },
     //!! ✅ Fetch all claims from user to Supervisor
     async fetchSupervisorClaims() {
-      const res = await fetch('/api/supervisor/all-claims', {
+      const baseURL = import.meta.env.VITE_API_URL
+
+      const res = await fetch(`${baseURL}/api/supervisor/all-claims`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -81,7 +86,9 @@ export const useClaimStore = defineStore('claimStore', {
     },
     //!! ✅ Fetch all claims from user to Manager
     async fetchManagerClaims() {
-      const res = await fetch('/api/manager/all-claims', {
+      const baseURL = import.meta.env.VITE_API_URL
+
+      const res = await fetch(`${baseURL}/api/manager/all-claims`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -100,7 +107,9 @@ export const useClaimStore = defineStore('claimStore', {
     },
     //!! ✅ Fetch all claims from user to HR
     async fetchHrClaims() {
-      const res = await fetch('/api/hr/all-claims', {
+      const baseURL = import.meta.env.VITE_API_URL
+
+      const res = await fetch(`${baseURL}/api/hr/all-claims`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -119,7 +128,9 @@ export const useClaimStore = defineStore('claimStore', {
     },
     //!! ✅ Fetch all claims from user to Account
     async fetchAccountClaims() {
-      const res = await fetch('/api/account/all-claims', {
+      const baseURL = import.meta.env.VITE_API_URL
+
+      const res = await fetch(`${baseURL}/api/account/all-claims`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -139,9 +150,11 @@ export const useClaimStore = defineStore('claimStore', {
 
     //!! APPROVE CLAIM
     async approveClaim(claimId) {
+      const baseURL = import.meta.env.VITE_API_URL
+
       this.errors = {}
       const token = localStorage.getItem('token')
-      const res = await fetch(`/api/claims/${claimId}/approve`, {
+      const res = await fetch(`${baseURL}/api/claims/${claimId}/approve`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -155,9 +168,11 @@ export const useClaimStore = defineStore('claimStore', {
     },
 
     async rejectClaim(claimId, reason) {
+      const baseURL = import.meta.env.VITE_API_URL
+
       this.errors = {}
       const token = localStorage.getItem('token')
-      await fetch(`/api/claims/${claimId}/reject`, {
+      await fetch(`${baseURL}/api/claims/${claimId}/reject`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -167,10 +182,13 @@ export const useClaimStore = defineStore('claimStore', {
       })
     },
 
+    //!!FETCH MY HANDLED CLAIMS
     async fetchMyHandledClaims() {
+      const baseURL = import.meta.env.VITE_API_URL
+
       this.errors = {}
       const token = localStorage.getItem('token')
-      const res = await fetch('/api/my-handled-claims', {
+      const res = await fetch(`${baseURL}/api/my-handled-claims`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
@@ -185,11 +203,12 @@ export const useClaimStore = defineStore('claimStore', {
 
     //!! FETCH GROUPED CLAIMS FOR USER
     async fetchMyClaimsGrouped() {
+      const baseURL = import.meta.env.VITE_API_URL
       this.groupedClaimsLoading = true
       this.groupedClaimsError = null
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/api/my-claims-grouped', {
+        const res = await fetch(`${baseURL}/api/my-claims-grouped`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         const data = await res.json()

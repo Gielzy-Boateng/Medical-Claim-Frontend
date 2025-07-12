@@ -137,9 +137,10 @@ const filteredUsers = computed(() => {
 const fetchUsers = async () => {
   loading.value = true
   error.value = ''
+  const baseURL = import.meta.env.VITE_API_URL
 
   try {
-    const res = await fetch('/api/users', {
+    const res = await fetch(`${baseURL}/api/users`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },

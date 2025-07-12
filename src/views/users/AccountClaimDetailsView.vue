@@ -24,9 +24,11 @@ const authStore = useAuthStore()
 
 onMounted(async () => {
   loading.value = true
+  const baseURL = import.meta.env.VITE_API_URL
+
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch(`/api/post/${route.params.id}`, {
+    const res = await fetch(`${baseURL}/api/post/${route.params.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await res.json()
@@ -98,7 +100,7 @@ function getMyAction() {
 </script>
 
 <template>
-  <WidthConstraint class="mt-10">
+  <WidthConstraint class="mt-10 flex items-center justify-between">
     <button
       class="z-20 flex items-center gap-2 px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
       @click="router.back()"
@@ -106,21 +108,22 @@ function getMyAction() {
     >
       <span aria-hidden="true">←</span>
       <span>Back</span>
-    </button></WidthConstraint
-  >
+    </button>
+    <button
+      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors duration-150 flex items-center gap-2"
+      style="min-width: 110px"
+      title="Print Claim Details"
+      @click="goToPrintView"
+    >
+      🖨️ Print
+    </button>
+  </WidthConstraint>
+
   <div
     class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
   >
     <!-- Approve/Reject Buttons or Status and Print Button -->
     <div class="absolute right-8 top-8 z-10 flex flex-row items-center gap-3" v-if="!getMyAction()">
-      <button
-        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors duration-150 flex items-center gap-2"
-        style="min-width: 110px"
-        title="Print Claim Details"
-        @click="goToPrintView"
-      >
-        🖨️ Print
-      </button>
       <template v-if="claim && claim.status === 'rejected'">
         <span
           class="px-6 py-2 rounded-full border border-red-300 bg-red-100 text-red-700 font-semibold shadow text-lg select-none block"

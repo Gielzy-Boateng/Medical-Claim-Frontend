@@ -223,9 +223,10 @@ const totalAmount = computed(() => {
 const fetchHandledClaims = async () => {
   loading.value = true
   error.value = ''
+  const baseURL = import.meta.env.VITE_API_URL
 
   try {
-    const res = await fetch('/api/my-handled-claims', {
+    const res = await fetch(`${baseURL}/api/my-handled-claims`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },

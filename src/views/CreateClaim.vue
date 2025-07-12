@@ -9,7 +9,7 @@ const formData = reactive({
   name: '',
   department: '',
   relation: 'myself',
-  description: '', // will be set to expenditures array before submit
+  description: '',
   amount: 0,
   document: null,
   expenditures: [{ medicine: '', price: 0 }],
@@ -28,10 +28,12 @@ const errorUser = ref(null)
 
 onMounted(async () => {
   errors.value = {}
-  // Fetch user claim_total
+  //!! Fetch user claim_total
+  const baseURL = import.meta.env.VITE_API_URL
+
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch('/api/user', {
+    const res = await fetch(`${baseURL}/api/user`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!res.ok) throw new Error('Failed to fetch user info')
@@ -174,6 +176,7 @@ async function handleSubmit() {
                 />
                 <input
                   v-model="item.price"
+                  step="any"
                   type="number"
                   placeholder="Price"
                   class="rounded-lg p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition shadow-sm bg-white w-32"

@@ -23,13 +23,16 @@ const authStore = useAuthStore()
 
 onMounted(async () => {
   loading.value = true
+  const baseURL = import.meta.env.VITE_API_URL
+
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch(`/api/post/${route.params.id}`, {
+    const res = await fetch(`${baseURL}/api/post/${route.params.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await res.json()
     claim.value = data
+    console.log(data)
   } catch (e) {
     console.log(e)
     error.value = 'Failed to load claim details.'

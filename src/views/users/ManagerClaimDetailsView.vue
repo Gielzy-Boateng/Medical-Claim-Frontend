@@ -4,12 +4,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { useClaimStore } from '@/stores/employee-claims'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import WidthConstraint from '@/components/WidthConstraint.vue'
 
 const route = useRoute()
 const claim = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const { errors } = storeToRefs(useClaimStore())
+const showTimeline = ref(false)
 
 const showRejectDialog = ref(false)
 const rejectReason = ref('')
@@ -23,12 +25,15 @@ const authStore = useAuthStore()
 
 onMounted(async () => {
   loading.value = true
+  const baseURL = import.meta.env.VITE_API_URL
+
   try {
     const token = localStorage.getItem('token')
-    const res = await fetch(`/api/post/${route.params.id}`, {
+    const res = await fetch(`${baseURL}/api/post/${route.params.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await res.json()
+    console.log(data)
     claim.value = data
   } catch (e) {
     console.log(e)
@@ -91,23 +96,42 @@ function getMyAction() {
 </script>
 
 <template>
-  <div
-    class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
-  >
-    <div
-      v-if="claim && claim.user && claim.user.claim_total !== undefined"
-      class="mb-6 text-indigo-700 font-bold text-lg"
-    >
-      Remaining Claim Amount: ₵{{ Number(claim.user.claim_total).toLocaleString() }}
-    </div>
+  <WidthConstraint class="flex items-center justify-between">
     <button
-      class="absolute left-6 top-6 z-20 flex items-center gap-2 px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
+      class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full shadow border border-gray-300 text-base font-semibold transition"
       @click="router.back()"
       title="Go Back"
     >
       <span aria-hidden="true">←</span>
       <span>Back</span>
     </button>
+    <button
+      class="text-nowrap bg-blue-500 rounded-full px-4 py-1 text-white text-base font-semibold shadow border"
+      @click="showTimeline = true"
+    >
+      View Timeline
+    </button>
+  </WidthConstraint>
+  <div
+    class="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 relative"
+  >
+    <!-- Timeline Dialog -->
+    <transition name="fade">
+      <div
+        v-if="showTimeline"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fadeIn">
+          <button
+            @click="showTimeline = false"
+            class="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold"
+          >
+            &times;
+          </button>
+          <ClaimProgressTimeline :claim="claim.value" />
+        </div>
+      </div>
+    </transition>
     <!-- Approve/Reject Buttons or Status -->
     <div class="absolute right-8 top-8 z-10" v-if="!getMyAction()">
       <template v-if="claim && claim.status === 'rejected'">
